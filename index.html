@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寰宇回响 - 沉浸式星象互动占卜装置</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- 加载屏幕 -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="cosmic-loader">
+                <div class="planet"></div>
+                <div class="orbit"></div>
+            </div>
+            <h2>寰宇回响</h2>
+            <p>正在连接星空...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用容器 -->
+    <div id="app" class="hidden">
+        <!-- 背景星空 -->
+        <div id="starfield-bg"></div>
+        
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>寰宇回响</h1>
+                <span>Cosmic Resonance</span>
+            </div>
+            <div class="nav-controls">
+                <button id="sound-toggle" class="control-btn" title="音效开关">🔊</button>
+                <button id="fullscreen-btn" class="control-btn" title="全屏模式">⛶</button>
+            </div>
+        </nav>
+
+        <!-- 欢迎区域 -->
+        <section id="welcome-section" class="section active">
+            <div class="welcome-content">
+                <div class="title-animation">
+                    <h1 class="main-title">寰宇回响</h1>
+                    <p class="subtitle">基于多模态交互的沉浸式星象互动占卜装置</p>
+                    <p class="description">当代码邂逅星空，传统文化如何焕发数字生命力</p>
+                </div>
+                
+                <div class="feature-highlights">
+                    <div class="feature-item">
+                        <div class="feature-icon">🌌</div>
+                        <h3>3D星空操控</h3>
+                        <p>手势操控虚拟星空</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔮</div>
+                        <h3>AI智能占卜</h3>
+                        <p>融合中西方星象智慧</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎤</div>
+                        <h3>多模态交互</h3>
+                        <p>语音与手势双重输入</p>
+                    </div>
+                </div>
+
+                <button id="start-experience" class="start-btn">
+                    <span>开始体验</span>
+                    <div class="btn-glow"></div>
+                </button>
+            </div>
+        </section>
+
+        <!-- 星空操控区域 -->
+        <section id="starfield-section" class="section">
+            <div class="section-header">
+                <h2>星空操控体验</h2>
+                <p>使用鼠标拖拽旋转星空，滚轮缩放，点击星座了解详情</p>
+            </div>
+            
+            <div class="starfield-container">
+                <canvas id="starfield-canvas"></canvas>
+                <div class="starfield-ui">
+                    <div class="gesture-hint">
+                        <div class="gesture-icon">👋</div>
+                        <p>挥手启动占星术</p>
+                    </div>
+                    <div class="constellation-info" id="constellation-info">
+                        <h3 id="constellation-name"></h3>
+                        <p id="constellation-desc"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <button id="activate-divination" class="action-btn">
+                    <span>启动占星术</span>
+                </button>
+                <button id="reset-view" class="secondary-btn">重置视角</button>
+            </div>
+        </section>
+
+        <!-- 信息输入区域 -->
+        <section id="input-section" class="section">
+            <div class="section-header">
+                <h2>信息输入</h2>
+                <p>请输入您的生日和想要占卜的问题</p>
+            </div>
+
+            <div class="input-container">
+                <div class="input-group">
+                    <label for="birth-date">出生日期</label>
+                    <input type="date" id="birth-date" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="birth-time">出生时间（可选）</label>
+                    <input type="time" id="birth-time">
+                </div>
+
+                <div class="input-group">
+                    <label for="question">占卜问题</label>
+                    <textarea id="question" placeholder="请输入您想要占卜的问题，例如：我的事业发展如何？" rows="4"></textarea>
+                </div>
+
+                <div class="voice-input-group">
+                    <button id="voice-input-btn" class="voice-btn">
+                        <span class="voice-icon">🎤</span>
+                        <span class="voice-text">点击语音输入</span>
+                    </button>
+                    <div id="voice-status" class="voice-status"></div>
+                </div>
+
+                <button id="start-divination" class="action-btn">
+                    <span>开始占卜</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 占卜过程区域 -->
+        <section id="process-section" class="section">
+            <div class="process-container">
+                <h2>正在分析星象...</h2>
+                
+                <div class="process-steps">
+                    <div class="step" id="step-1">
+                        <div class="step-icon">🛰️</div>
+                        <h3>连接NASA数据库</h3>
+                        <p>获取行星位置数据</p>
+                        <div class="step-progress"></div>
+                    </div>
+                    
+                    <div class="step" id="step-2">
+                        <div class="step-icon">🏛️</div>
+                        <h3>查询紫金山天文台</h3>
+                        <p>获取28星宿数据</p>
+                        <div class="step-progress"></div>
+                    </div>
+                    
+                    <div class="step" id="step-3">
+                        <div class="step-icon">🤖</div>
+                        <h3>AI智能分析</h3>
+                        <p>融合中西方星象智慧</p>
+                        <div class="step-progress"></div>
+                    </div>
+                    
+                    <div class="step" id="step-4">
+                        <div class="step-icon">🎨</div>
+                        <h3>生成专属内容</h3>
+                        <p>创建插画和签文</p>
+                        <div class="step-progress"></div>
+                    </div>
+                </div>
+
+                <div class="cosmic-animation">
+                    <div class="central-star"></div>
+                    <div class="orbit-ring ring-1"></div>
+                    <div class="orbit-ring ring-2"></div>
+                    <div class="orbit-ring ring-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 结果展示区域 -->
+        <section id="result-section" class="section">
+            <div class="result-container">
+                <h2>您的星象解读</h2>
+                
+                <div class="result-content">
+                    <div class="result-text">
+                        <div class="divination-reading" id="divination-reading">
+                            <!-- 占卜结果将在这里显示 -->
+                        </div>
+                        
+                        <div class="planetary-aspects" id="planetary-aspects">
+                            <h3>行星相位分析</h3>
+                            <!-- 行星相位信息 -->
+                        </div>
+                    </div>
+                    
+                    <div class="result-visual">
+                        <div class="constellation-art" id="constellation-art">
+                            <div class="art-placeholder">
+                                <span>🌟</span>
+                                <p>专属星象插画</p>
+                            </div>
+                        </div>
+                        
+                        <div class="fortune-poem" id="fortune-poem">
+                            <div class="poem-content">
+                                <!-- 七言签文将在这里显示 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-actions">
+                    <button id="play-audio" class="action-btn">
+                        <span>🔊 语音播报</span>
+                    </button>
+                    <button id="share-result" class="secondary-btn">
+                        <span>📤 分享结果</span>
+                    </button>
+                    <button id="new-divination" class="secondary-btn">
+                        <span>🔄 重新占卜</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 进度指示器 -->
+        <div class="progress-indicator">
+            <div class="progress-step active" data-section="welcome">欢迎</div>
+            <div class="progress-step" data-section="starfield">星空</div>
+            <div class="progress-step" data-section="input">输入</div>
+            <div class="progress-step" data-section="process">分析</div>
+            <div class="progress-step" data-section="result">结果</div>
+        </div>
+    </div>
+
+    <!-- 音频元素 -->
+    <audio id="ambient-sound" loop>
+        <source src="sounds/ambient.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sound">
+        <source src="sounds/click.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- JavaScript -->
+    <script src="js/starfield.js"></script>
+    <script src="js/voice.js"></script>
+    <script src="js/divination.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
