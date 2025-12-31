@@ -28,24 +28,55 @@ class CosmicResonanceApp {
         const loadingScreen = document.getElementById('loading-screen');
         const app = document.getElementById('app');
         
+        // 检查关键资源是否加载
+        const checkResources = () => {
+            const threeLoaded = typeof THREE !== 'undefined';
+            const gsapLoaded = typeof gsap !== 'undefined';
+            
+            console.log('资源检查:', {
+                THREE: threeLoaded,
+                GSAP: gsapLoaded
+            });
+            
+            if (!threeLoaded) {
+                console.error('Three.js 未加载');
+            }
+            if (!gsapLoaded) {
+                console.error('GSAP 未加载');
+            }
+            
+            return threeLoaded && gsapLoaded;
+        };
+        
         // 模拟加载过程
         let progress = 0;
+        let resourcesReady = false;
+        const maxWaitTime = 10000; // 最多等待10秒
+        const startTime = Date.now();
+        
         const loadingInterval = setInterval(() => {
+            // 检查资源是否加载完成
+            if (!resourcesReady && checkResources()) {
+                resourcesReady = true;
+                console.log('资源加载完成');
+            }
+            
+            // 检查是否超时
+            if (Date.now() - startTime > maxWaitTime) {
+                console.warn('加载超时，强制显示页面');
+                clearInterval(loadingInterval);
+                this.hideLoadingScreen();
+                return;
+            }
+            
             progress += Math.random() * 15;
             
             if (progress >= 100) {
                 progress = 100;
                 clearInterval(loadingInterval);
                 
-                // 加载完成，显示主应用
-                setTimeout(() => {
-                    loadingScreen.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                        app.classList.remove('hidden');
-                        this.onAppLoaded();
-                    }, 500);
-                }, 500);
+                // 即使资源未加载完成，也显示页面（避免一直转圈）
+                this.hideLoadingScreen();
             }
             
             const progressBar = document.querySelector('.loading-progress');
@@ -53,6 +84,28 @@ class CosmicResonanceApp {
                 progressBar.style.width = progress + '%';
             }
         }, 200);
+        
+        // 设置超时保护
+        setTimeout(() => {
+            if (loadingScreen && loadingScreen.style.display !== 'none') {
+                console.warn('加载超时，强制隐藏加载屏幕');
+                this.hideLoadingScreen();
+            }
+        }, maxWaitTime);
+    }
+    
+    hideLoadingScreen() {
+        const loadingScreen = document.getElementById('loading-screen');
+        const app = document.getElementById('app');
+        
+        if (loadingScreen && app) {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                app.classList.remove('hidden');
+                this.onAppLoaded();
+            }, 500);
+        }
     }
 
     onAppLoaded() {
@@ -631,10 +684,64 @@ let cosmicApp;
 
 // 页面加载完成后初始化应用
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        cosmicApp = new CosmicResonanceApp();
-    } catch (error) {
-        console.error('应用初始化失败:', error);
+    console.log('DOM加载完成，开始初始化应用...');
+    
+    // 检查关键资源
+    const checkResources = () => {
+        const threeLoaded = typeof THREE !== 'undefined';
+        const gsapLoaded = typeof gsap !== 'undefined';
+        
+        console.log('资源检查:', {
+            THREE: threeLoaded,
+            GSAP: gsapLoaded,
+            windowLoaded: document.readyState === 'complete'
+        });
+        
+        return threeLoaded && gsapLoaded;
+    };
+    
+    // 如果资源未加载，等待一段时间
+    if (!checkResources()) {
+        console.warn('资源未完全加载，等待中...');
+        let waitCount = 0;
+        const maxWait = 50; // 最多等待5秒
+        
+        const waitInterval = setInterval(() => {
+            waitCount++;
+            if (checkResources() || waitCount >= maxWait) {
+                clearInterval(waitInterval);
+                if (waitCount >= maxWait) {
+                    console.error('资源加载超时，但继续初始化');
+                }
+                initializeApp();
+            }
+        }, 100);
+    } else {
+        initializeApp();
+    }
+    
+    function initializeApp() {
+        try {
+            console.log('开始创建应用实例...');
+            cosmicApp = new CosmicResonanceApp();
+            console.log('应用实例创建成功');
+        } catch (error) {
+            console.error('应用初始化失败:', error);
+            console.error('错误堆栈:', error.stack);
+            
+            // 即使初始化失败，也隐藏加载屏幕
+            const loadingScreen = document.getElementById('loading-screen');
+            const app = document.getElementById('app');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+            if (app) {
+                app.classList.remove('hidden');
+            }
+            
+            // 显示错误提示
+            alert('应用初始化失败，请刷新页面重试。错误信息：' + error.message);
+        }
     }
 });
 

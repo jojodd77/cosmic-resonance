@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>寰宇回响 - 沉浸式星象互动占卜装置</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" 
+            onerror="console.error('Three.js加载失败'); window.threeLoadFailed = true;"
+            onload="console.log('Three.js加载成功'); window.threeLoaded = true;"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+            onerror="console.error('GSAP加载失败'); window.gsapLoadFailed = true;"
+            onload="console.log('GSAP加载成功'); window.gsapLoaded = true;"></script>
 </head>
 <body>
     <!-- 加载屏幕 -->
