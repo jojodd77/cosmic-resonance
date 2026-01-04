@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面 - Vercel部署</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+        }
+        h1 { color: #fff; }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #0a0; }
+        .error { background: #a00; }
+        .info { background: #00a; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Vercel 部署测试页面</h1>
+    <p>如果能看到这个页面，说明 Vercel 部署基本正常。</p>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        const results = document.getElementById('test-results');
+        
+        function addResult(name, status, message) {
+            const div = document.createElement('div');
+            div.className = 'status ' + status;
+            div.innerHTML = `<strong>${name}:</strong> ${message}`;
+            results.appendChild(div);
+        }
+        
+        // 测试1: 页面加载
+        addResult('页面加载', 'success', '✅ 成功');
+        
+        // 测试2: JavaScript执行
+        addResult('JavaScript执行', 'success', '✅ 成功');
+        
+        // 测试3: 资源文件
+        const testFiles = [
+            'css/style.css',
+            'js/app.js',
+            'js/starfield.js',
+            'js/gesture.js',
+            'js/voice.js',
+            'js/divination.js'
+        ];
+        
+        let loadedCount = 0;
+        testFiles.forEach(file => {
+            fetch(file)
+                .then(response => {
+                    if (response.ok) {
+                        loadedCount++;
+                        if (loadedCount === testFiles.length) {
+                            addResult('资源文件', 'success', `✅ 所有 ${testFiles.length} 个文件加载成功`);
+                        }
+                    } else {
+                        addResult('资源文件', 'error', `❌ ${file} 加载失败 (${response.status})`);
+                    }
+                })
+                .catch(error => {
+                    addResult('资源文件', 'error', `❌ ${file} 加载失败: ${error.message}`);
+                });
+        });
+        
+        // 测试4: CDN资源
+        setTimeout(() => {
+            if (typeof THREE !== 'undefined') {
+                addResult('Three.js CDN', 'success', '✅ 加载成功');
+            } else {
+                addResult('Three.js CDN', 'error', '❌ 未加载（可能CDN被墙）');
+            }
+            
+            if (typeof gsap !== 'undefined') {
+                addResult('GSAP CDN', 'success', '✅ 加载成功');
+            } else {
+                addResult('GSAP CDN', 'error', '❌ 未加载（可能CDN被墙）');
+            }
+        }, 2000);
+        
+        // 测试5: 环境信息
+        addResult('环境信息', 'info', 
+            `浏览器: ${navigator.userAgent}<br>` +
+            `URL: ${window.location.href}<br>` +
+            `时间: ${new Date().toLocaleString('zh-CN')}`
+        );
+    </script>
+</body>
+</html>
+
